@@ -1,4 +1,4 @@
-# React講座のメモ
+# React講座(基礎編)のメモ
 
 ## 目標
 - Reactの基礎知識を得る
@@ -479,4 +479,55 @@ const ToggleButton = () => {
     );
 };
 export default ToggleButton;
+```
+
+## useEffectの実用的な使い方
+useEffectはAPIやデータベースから非同期通信でデータを取得(fetch)することに用いる.
+特定の値が変わったらデータを再取得(fetch)する. ここではGitHubのAPIからユーザーデータを取得してみる. fetch APIの核心部分を次に示す. まずfetchで非同期にAPIをたたく. たたいた結果が帰ってきたら(.then)レスポンスrepをJSON形式にする. そしてJSONのdataを表示する. またエラーが発生した場合はcatchメソッドでエラー対処する.
+```jsx
+fetch("https://api.github.com/users/yudai0731")
+    .then(res => res.json())
+    .then(data => {
+        console.log(data)
+    })
+    .catch(error => {
+        console.error(error)
+    })
+```
+
+これを用いてGitHubにidを問い合わせて名前を表示するアプリを作ってみる. バッククオーテーションで加工とjsの変数を埋め込むことができる. useEffectを用いることでIDがボタンでランダムに変更されるとAPIから名前を取得して表示し, ランダムで変更がされないときはそのままの状態にするようにできる(useEffectの第二引数が重要な役割).
+```jsx
+// App.js
+import React, { useState, useEffect } from "react";
+// import {TextInput, Counter, ToggleButton} from "./components/index"
+
+function App(){
+    const [name, setName] = useState("")
+    const [id, setId] = useState("yudai0731")
+    const ids = ["yudai0731", "gaearon", "aws", "google", "facebook"]
+    const getRandomId = () =>{
+      const _id = ids[Math.floor(Math.random()*ids.length)]
+      setId(_id)
+    }
+
+    useEffect( () => {
+      fetch(`https://api.github.com/users/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+        setName(data.name)
+      })
+      .catch(error => {
+        console.error(error)
+      })
+    }, [id])
+    return (
+      <div>
+        <p>{id}の名前は{name}です.</p>
+        <button onClick={getRandomId}>IDをランダムに変更</button>
+      </div>
+    );
+}
+
+export default App;
 ```
