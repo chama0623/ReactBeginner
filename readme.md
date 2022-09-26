@@ -147,3 +147,39 @@ function App(){
 
 export default App;
 ```
+
+## JavaScriptのモジュール
+モジュールとはプログラムを分割する単位で, 必要な時にimportするような仕組みを表す. モジュールは原則1モジュール1ファイルにする. Reactのコンポーネントもこの考え方を参考にしている. import, exportにはいくつか種類がある. 
+- default export(名前なしexport): 推奨されているexport方法で1ファイル1exportである. 関数を宣言した後にdefault exportする方法と, 名前付き関数を宣言するときにdefault exportする方法がある.
+
+- defaiult import : default exportしたモジュールをそのまま読みこむ. import モジュール名 from ファイルパス のように記述する.
+
+- 名前付きexport : 1ファイルから複数モジュールをexportしたいときに用いる. 例えば次のように複数のモジュールからなるファイルがあるとき, 次のようにexportする. これによってdefaultという名前でas以下のコンポーネントがexportされる. これによって呼び出すときにdefaultでまとめてimportできる. 同時にas以下の名前で単一のモジュールだけ呼び出したいときに呼び出すことができる. エントリポイントは慣例的にcomponent/index.jsに作成する.
+```jsx
+export const addTax = (price) => {
+    return Math.floor(price * 1.1)
+}
+export const getWild = () => {
+    console.log("Get Wild and touch")
+}
+
+export {default as Article} from "./Article"
+export {default as Content} from "./Content"
+export {default as Title} from "./Title"
+```
+
+- 名前付きインポート: 1つのファイルから複数のモジュールを呼び出すとき, エントリポイントから複数のコンポーネントを読み込むときに用いる. 例を次に示す. この例ではcomponent/index.jsからContentとTitleを読み込んでいる.
+```jsx
+import {Content, Title} from "./index";
+
+const Article = (props) => {
+    return (
+        <div>
+            <Title title={props.title} />
+            <Content content={props.content} />
+        </div>
+    );
+};
+
+export default Article;
+```
