@@ -199,6 +199,7 @@ const [state, setState] = useState(initialState)
 stateの更新は次のように行う.
 ```jsx
 setState(newState)
+// newState: 新しい状態
 ```
 
 useStateの使い方の例を次に示す.
@@ -249,3 +250,134 @@ propsとstateの違い
 - state : コンポーネントの中で制御・処理を行うためのもの
 
 ## stateをpropsに渡す
+次のような例を通してstateをpropsに渡す方法を説明する. まずuseStateとその関数を設定する. 
+ここではpublishArticleという関数を定義する. そして<PublishButton isPublished={isPublished} onClick={publishArticle} />でPublishButtonを実装する. propsにはisPublishedとしてstateのisPublished, ボタンクリック時の動作としてpublishArticle関数を渡す. PublishButton関数ではボタンがクリックされたらprops.onClick, すなわちpublishArticle関数を実行する. また表示部ではprops.isPublished.toString(), すなわちisPublishedを文字列化した値を表示する.
+```jsx
+// Article.jsx
+import { useState } from "react";
+import {Title, Content, PublishButton} from "./index";
+
+const Article = (props) => {
+    const [isPublished, setIsPublished] = useState(false)
+    // 公開状態をtrueにする関数
+    const publishArticle = () => {
+        setIsPublished(true) // 更新関数をtrueにする
+    }
+
+    return (
+        <div>
+            <Title title={props.title} />
+            <p>{props.authorName}</p>
+            <Content content={props.content}/>
+            <PublishButton isPublished={isPublished} onClick={publishArticle} />
+        </div>
+    );
+};
+
+export default Article; /* 子コンポーネントをexportできるようにする */
+```
+
+```jsx
+// PublishButton.jsx
+const PublishButton = (props) => {
+    return (
+        <button onClick={() => props.onClick()}>
+            公開状態: {props.isPublished.toString()}
+        </button>
+    )
+};
+
+export default PublishButton;
+```
+
+## useStateの実用的な使い方
+引数を渡してstateを更新したい時がある. このような場合は次のようにonChange関数を用いて状態の更新を行う. TextInput関数はhandleName関数を持っており, eventの値をsetName関数に与えてstateを更新する処理を行う. eventはinput, すなわちテキストボックスの入力のonChangeで受け取る. 
+onChangeはその変数の中身が変更されたことをトリガーにeventをhandleName関数に与える. これによってnameが更新され, inputタグのnameが更新される.
+```jsx
+// App.js
+import React from "react";
+import {Article, TextInput} from "./components/index"
+
+function App(){
+  const authorName = "chama" // 変数宣言
+    return (
+      <TextInput />
+    );
+}
+```
+
+export default App;
+
+```jsx
+// TextInput.js
+import React, {useState} from "react";
+
+const TextInput = () => {
+    const[name, setName] = useState("")
+
+    const handleName = (event) => {
+        console.log(event.target.value)
+        setName(event.target.value)
+    }
+
+    return (
+        <input onChange = {(event) => handleName(event)}
+        type={"text"}
+        value={name}
+        />
+    );
+};
+
+export default TextInput;
+```
+
+次にprevStateについて説明する. これは特殊は変数で, 更新前のstateの値を持つ. これを用いて例えばカウンターを作ることができる. カウンターの例を次に示す. setCount(prevState => prevState+1)の部分が, setCount(count+1)ではダメなのかという疑問があるが, countの処理は非同期であるためバグる可能性がある. だから更新関数でちゃんと更新したほうがいい.
+```jsx
+// Counter.jsx
+import React, {useState} from "react";
+
+const Counter = () => {
+    const [count, setCount] = useState(0)
+    const countUp = () =>{
+        /* アロー演算
+        func (a){ return a+1}
+        は次と同義
+        a => a+1
+        すなわちアロー演算の左の式が引数, 右の式が返り値を表す無名関数となる
+        */
+        setCount(prevState => prevState+1)
+    }
+    const countDown = () =>{
+        setCount(prevState => prevState-1)
+    }
+
+    return (
+        <div>
+            <p>Current Count: {count}</p>
+            <button onClick={countUp}>up</button>
+            <button onClick={countDown}>down</button>
+        </div>
+    );
+};
+
+export default Counter;
+```
+
+```jsx
+// App.js
+import React from "react";
+import {TextInput, Counter} from "./components/index"
+
+function App(){
+    return (
+      <div>
+      <TextInput />
+      <Counter />
+      </div>
+    );
+}
+
+export default App;
+```
+
+## ライフサイクル
