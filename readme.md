@@ -12,7 +12,7 @@ ReactはFacebook社が開発したUiライブラリで現在はOSS. UIを作る�
 ## JSXの記法
 JSXはJavaScriptの拡張言語を表す. HTMLライクな記法でJavaScriptの構文が使える, JSXは最終的にReact要素を生成するという特徴がある. JSXはコンパイル時にJSX記法で書いたものをReact.createElementの式に変換してReact要素を生成する. JSXの基本文法を次に示す. JSは基本的にキャメルケース(ex. className)で記述する. また変数を{value}のようにすることで出力できる. また最上位のコンポーネントは1つでないといけない(並列できない). このため最上位に<React.Fragment>や<>, <div>で囲む(どれも出力上はなかったことになる).
 ```jsx
-import React from "react"; # Reactライブラリをインポートする
+import React from "react"; // Reactライブラリをインポートする(現在はなくても動く)
 consta BlueButton = () => {
     return (
         <button className={"btn-blue"}>
@@ -32,7 +32,7 @@ npx create-react-app [フォルダ名]
 
 ## 基本的なスクリプト
 ここでは基本的なスクリプトとして3つのスクリプトについて説明する.
-まず次に示すnpm startコマンドを用いるとローカルサーバーを起動してReactアプリを確認できる. これはホットリロード対応であるからアプリ実行中にソースコードが更新されると実行中のアプリも更新される. 
+まず次に示すnpm startコマンドを用いるとローカルサーバーを起動してReactアプリを確認できる. これはホットリロード対応であるからアプリ実行中にソースコードが更新されると実行中のアプリも更新される. アプリはlocalhost:3000で起動する.
 ```
 npm start
 ```
@@ -42,7 +42,108 @@ npm start
 npm run build
 ```
 
-最後にnpm run ejectコマンドについて説明する. このコマンドはBabelやWebpackの設定を変更したいときに用いるコマンドである.
+最後にnpm run ejectコマンドについて説明する. このコマンドはトランスパイラ(BabelやWebpack)の設定を変更したいときに用いるコマンドである.
 ```
 npm run eject
+```
+
+なおこれらのコマンドはpackage.jsonに記述されている. 
+
+## コンポーネントの基本
+コンポーネントとは何か? →見た目の機能を持つUI部品でこれを組み合わせてページを作る. コンポーネントは大きく分けるとClass ComponentとFunctional Componentの2つがあり後者が主流になっている. 1つのコンポーネントは1つのファイルに記述する.  
+ファイル名は大文字始まりで, 親コンポーネント, 子コンポーネントという概念がある. これは親コンポーネントが子コンポーネントをimportし, 子コンポーネントではコンポーネントをexportできるように記述してあげる. 親コンポーネント(App.jsx)と子コンポーネント(components/Article.jsx)の例を次に示す.
+
+```jsx
+{/* 親コンポーネント */}
+import Article from "./components/Article.jsx" /* 子コンポーネントをインポート */
+
+function App(){
+    return (
+        <div>
+            <Article />  {/* 子コンポーネントを呼び出す */}
+        </div>
+    );
+}
+
+export default App;
+```
+
+```jsx
+/* 子コンポーネント　*/
+const Article = () => {
+    return <h2>こんにちわ</h2>
+};
+
+export default Article; /* 子コンポーネントをexportできるようにする */
+```
+
+コンポーネントを扱ううえで重要なpropsについて説明する. 親コンポーネントから子コンポーネントにデータを受け渡したいときにpropsを用いる. propsの例を次に示す. この例ではArticleコンポーネントが引数としてpropsを受け取り, props.tileとprops.contentの情報が親コンポーネントから受け渡される. 親コンポーネントでは子コンポーネントを呼び出すときにtitleとcontentを指定する. propsで渡せるデータについては文字列, 数値, 真理値, 変数など何でもよい. 記法としては{value}のように中括弧で囲って記述するが文字列は"test"のようにそのまま渡してもよい.
+
+```jsx
+/* 親コンポーネント */
+import Article from "./components/Article.jsx" /* 子コンポーネントをインポート */
+
+function App(){
+    return (
+        <div>
+            <Article 
+                title={"ゼロから学ぶディープラーニング"} /* props.titleの指定 */
+                content={"ニューラルネットワークの構造について"}　/* props.contentの指定 */
+            />
+        </div>
+    );
+}
+
+export default App;
+```
+
+```jsx
+{/* 子コンポーネント　*/}
+const Article = (props) => {
+    return (
+        <div>
+            <h2>{props.title}</h2> {/* propsから値を受け取る */}
+            <p>{props.content}</p> {/* propsから値を受け取る */}
+        </div>
+    );
+};
+
+export default Article; /* 子コンポーネントをexportできるようにする */
+```
+
+コンポーネントは再利用することができる. 例えば次のようにする. ここでは一つずつ値を与えているがmapメソッドを用いてさらに簡単に与えることができる.
+
+```jsx
+import Article from "./components/Article.jsx"
+
+function App(){
+  const authorName = "chama" // 変数宣言
+    return (
+        <div>
+            <Article 
+                /* props.titleの指定 */
+                title={"ラーメンの作り方入門1"}
+                /* props.contentの指定 */
+                content={"スープの作り方について"}
+                authorName={authorName} 
+            />
+            <Article 
+                /* props.titleの指定 */
+                title={"ラーメンの作り方入門2"}
+                /* props.contentの指定 */
+                content={"麺の作り方について"}
+                authorName={authorName} 
+            />
+            <Article 
+                /* props.titleの指定 */
+                title={"ラーメンの作り方入門3"}
+                /* props.contentの指定 */
+                content={"ラーメンを完成させる"}
+                authorName={authorName} 
+            />
+        </div>
+    );
+}
+
+export default App;
 ```
