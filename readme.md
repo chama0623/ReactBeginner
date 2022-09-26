@@ -183,3 +183,69 @@ const Article = (props) => {
 
 export default Article;
 ```
+
+## コンポーネントの状態管理
+Hooks:コンポーネント内で状態を管理する, ライフサイクルを扱う機能のこと. Reactコンポーネント内の値を書き換えたいときがある. JSではコンポーネント内のDOMを直接書き換えていたが, Reactではstateを用いることでこれらを行う. Reactコンポーネントが再レンダリングするタイミングはstateが変更されたとき, もしくはpropsが変更されたときである. 
+
+## useStateの使い方
+まず次のようにuseStateによるstateを宣言する. 
+```jsx
+const [state, setState] = useState(initialState)
+// state: 現在の状態
+// setState: 更新関数
+// initialState: 初期値
+```
+
+stateの更新は次のように行う.
+```jsx
+setState(newState)
+```
+
+useStateの使い方の例を次に示す.
+```jsx
+// App.js
+import Article from "./components/Article.jsx"
+
+function App(){
+  const authorName = "chama" // 変数宣言
+    return (
+        <div>
+            <Article 
+                /* props.titleの指定 */
+                title={"ラーメンの作り方入門1"}
+                /* props.contentの指定 */
+                content={"スープの作り方について"}
+                authorName={authorName} 
+            />
+        </div>
+    );
+}
+
+export default App;
+```
+
+```jsx
+// Article.js
+import { useState } from "react";
+
+const Article = (props) => {
+    const [isPublished, setIsPublished] = useState(false)
+    console.log(isPublished)
+    return (
+        <div>
+            <h2>{props.title}</h2> {/* propsから値を受け取る */}
+            <p>{props.authorName}</p>
+            <p>{props.content}</p> {/* propsから値を受け取る */}
+            <button onClick={() => setIsPublished(true)}>公開</button>
+        </div>
+    );
+};
+
+export default Article; /* 子コンポーネントをexportできるようにする */
+```
+
+propsとstateの違い
+- props : 親コンポーネントから子コンポーネントに渡されるもの
+- state : コンポーネントの中で制御・処理を行うためのもの
+
+## stateをpropsに渡す

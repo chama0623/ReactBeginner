@@ -1,4 +1,5 @@
-import Article from "./components/Article.jsx"
+import React from "react";
+import {Article} from "./components/index"
 
 function App(){
   const authorName = "chama" // 変数宣言
@@ -9,20 +10,6 @@ function App(){
                 title={"ラーメンの作り方入門1"}
                 /* props.contentの指定 */
                 content={"スープの作り方について"}
-                authorName={authorName} 
-            />
-            <Article 
-                /* props.titleの指定 */
-                title={"ラーメンの作り方入門2"}
-                /* props.contentの指定 */
-                content={"麺の作り方について"}
-                authorName={authorName} 
-            />
-            <Article 
-                /* props.titleの指定 */
-                title={"ラーメンの作り方入門3"}
-                /* props.contentの指定 */
-                content={"ラーメンを完成させる"}
                 authorName={authorName} 
             />
         </div>

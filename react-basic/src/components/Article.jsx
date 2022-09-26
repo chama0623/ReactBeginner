@@ -1,9 +1,19 @@
+import { useState } from "react";
+import {Title, Content, PublishButton} from "./index";
+
 const Article = (props) => {
+    const [isPublished, setIsPublished] = useState(false)
+    // 公開状態をtrueにする関数
+    const publishArticle = () => {
+        setIsPublished(true) // 更新関数をtrueにする
+    }
+
     return (
         <div>
-            <h2>{props.title}</h2> {/* propsから値を受け取る */}
+            <Title title={props.title} />
             <p>{props.authorName}</p>
-            <p>{props.content}</p> {/* propsから値を受け取る */}
+            <Content content={props.content}/>
+            <PublishButton isPublished={isPublished} onClick={publishArticle} />
         </div>
     );
 };
