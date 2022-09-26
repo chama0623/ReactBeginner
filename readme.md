@@ -381,3 +381,102 @@ export default App;
 ```
 
 ## ライフサイクル
+ライフサイクルはコンポーネントが生まれてから破棄されるまでの時間の流れのことを表す. ライフサイクルを使うと時点に応じた処理を実行できる. 現在はuseEffectを用いてライフサイクルを表現している.   
+ライフサイクルにはMountin, Updating, Unmountingの3種類のライフサイクルがある. 
+- Mounting : コンポーネントが生まれる期間(初めにページが描画されるまでの期間)
+- Updating : コンポーネントが変更される期間(ページに変更が生じる期間)
+- Unmounting : コンポーネントが破棄される期間(別のページに移動, そのコンポーネントが不必要になる期間)
+
+Mountingでは初期化が行われる. またコンストラクタが呼び出されれて初期値を設定するような処理が実行される. 次に初回のレンダリングが行われる. その後にマウント後の処理が行われる. Updatingではレンダリングと更新後の処理が行われる. Unmountingではアンマウント前の処理が行われ, コンポーネントが消滅する.  
+関数コンポーネントではuseEffectという副作用フックを用いて処理を行う. 副作用とはレンダリングのたびに引き起こされる処理のことである. ここでは例としてCounter.jsxにuseEffectを加えてみる. これを実行すると, カウントアップ/ダウンが行われるたびにレンダリングが実行され, useEffectのconsole.logが実行される.
+
+```jsx
+import React, {useState, useEffect} from "react";
+
+const Counter = () => {
+    const [count, setCount] = useState(0)
+    const countUp = () =>{
+        /* アロー演算
+        func (a){ return a+1}
+        は次と同義
+        a => a+1
+        すなわちアロー演算の左の式が引数, 右の式が返り値を表す無名関数となる
+        */
+        setCount(prevState => prevState+1)
+    }
+    const countDown = () =>{
+        setCount(prevState => prevState-1)
+    }
+
+    useEffect( () => {
+        console.log("Current count is...", count)
+    })
+
+    return (
+        <div>
+            <p>Current Count: {count}</p>
+            <button onClick={countUp}>up</button>
+            <button onClick={countDown}>down</button>
+        </div>
+    );
+};
+
+export default Counter;
+```
+
+useEffectは第二引数depsで与える配列によって実行するタイミングを制御することができる. 第二引数で与える配列と実行タイミングの例を次に示す.
+```jsx
+// レンダリングのたびに実行
+useEffect( () => {
+    console.log("Current count is...", count)
+})
+
+// 初回レンダリング後のみ実行
+useEffect( () => {
+    console.log("Current count is...", count)
+}, [])
+
+// triggerが実行されるたびに実行
+useEffect( () => {
+    console.log("Current count is...", count)
+}, [trigger])
+
+// trigger1またはtrigger2が実行されるたびに実行
+useEffect( () => {
+    console.log("Current count is...", count)
+}, [trigger1, trigger2])
+```
+
+次にクリーンアップについて説明する. ToggleButton.jsxにクリーンアップを加えた例を次に示す. この例ではまず最初open=Falseで処理が始まる. ボタンがクリックされるとまずクリーンアップの処理が行われ, Unsubscribe database!が表示される. 次にopen=TrueとなりSubscribe database...が表示される. もう一度ボタンをクリックするとクリーンアップが実行され, open=Falseとなる.
+```jsx
+// ToggleButton.jsx
+import React, {useState} from "react";
+import { useEffect } from "react";
+
+const ToggleButton = () => {
+    const[open, setOpen] = useState(false)
+
+    const toggle = () => {
+        setOpen(prevState => !prevState) // 前の状況を反転させる
+    }
+
+    useEffect( () => {
+        console.log("Current state is ", open)
+        if(open){
+            console.log("Subscribe database...")
+        }
+        return () => { // クリーンアップ
+            console.log("Unsubscribe database!") // クリーンアップ関数
+        }
+    })
+
+    return(
+        // クリックトリガーでtoggle関数を実行
+        // 表示部は三項演算子 条件 ? True処理:False処理
+        <div>
+        <button onClick={toggle}>{open ? "open":"close"}</button>
+        </div>
+    );
+};
+export default ToggleButton;
+```
